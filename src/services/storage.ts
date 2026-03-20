@@ -2,6 +2,8 @@ import type { NotesMap } from "../types";
 
 const NOTES_STORAGE_KEY = "txt-grid-notes";
 const THEME_STORAGE_KEY = "txt-grid-theme";
+const INPUT_DRAFT_STORAGE_KEY = "tablecraft-input-draft";
+const SEARCH_DRAFT_STORAGE_KEY = "tablecraft-search-draft";
 
 export type ThemeMode = "light" | "dark";
 
@@ -58,4 +60,28 @@ export function loadThemeMode(): ThemeMode {
 
 export function saveThemeMode(theme: ThemeMode): void {
   window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+}
+
+export function loadInputDraft(): string {
+  return window.localStorage.getItem(INPUT_DRAFT_STORAGE_KEY) ?? "";
+}
+
+export function saveInputDraft(value: string): void {
+  window.localStorage.setItem(INPUT_DRAFT_STORAGE_KEY, value);
+}
+
+export function clearInputDraft(): void {
+  window.localStorage.removeItem(INPUT_DRAFT_STORAGE_KEY);
+}
+
+export function loadSearchDraft(): string {
+  return window.localStorage.getItem(SEARCH_DRAFT_STORAGE_KEY) ?? "";
+}
+
+export function saveSearchDraft(value: string): void {
+  window.localStorage.setItem(SEARCH_DRAFT_STORAGE_KEY, value);
+}
+
+export function clearSearchDraft(): void {
+  window.localStorage.removeItem(SEARCH_DRAFT_STORAGE_KEY);
 }

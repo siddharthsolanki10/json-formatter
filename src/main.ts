@@ -2,9 +2,15 @@ import "./style.css";
 import {
   buildCellNoteKey,
   buildRowNoteKey,
+  clearInputDraft,
+  clearSearchDraft,
+  loadInputDraft,
   loadNotes,
+  loadSearchDraft,
   loadThemeMode,
+  saveInputDraft,
   saveNotes,
+  saveSearchDraft,
   saveThemeMode,
   type ThemeMode,
 } from "./services/storage";
@@ -34,11 +40,11 @@ appElement.innerHTML = `
 
     <header class="topbar card">
       <div>
-        <h1>TXT Table Studio</h1>
-        <p>Upload or paste pipe-delimited text and explore it with high-speed table tools.</p>
+        <h1>TableCraft</h1>
+        <p>Build, inspect, and annotate pipe-delimited tables with a fast interactive workspace.</p>
       </div>
       <div class="topbar-actions">
-        <button id="themeToggleBtn" class="btn subtle" type="button">Theme</button>
+        <button id="themeToggleBtn" class="btn subtle theme-btn" type="button">Dark Mode</button>
         <button id="fullscreenToggleBtn" class="btn subtle" type="button">Fullscreen</button>
         <button id="exportCsvBtn" class="btn" type="button">Export CSV</button>
         <button id="copyRowBtn" class="btn" type="button">Copy Selected Row</button>
@@ -52,7 +58,7 @@ appElement.innerHTML = `
             Upload TXT
             <input id="fileInput" type="file" accept=".txt,text/plain" />
           </label>
-          <button id="parseBtn" class="btn primary" type="button">Create Table</button>
+          <button id="parseBtn" class="btn primary" type="button">Create</button>
           <button id="clearBtn" class="btn subtle" type="button">Clear</button>
         </div>
 
@@ -193,7 +199,7 @@ function setStatus(message: string): void {
 function applyTheme(mode: ThemeMode): void {
   document.documentElement.dataset.theme = mode;
   elements.themeToggleBtn.textContent =
-    mode === "dark" ? "Light Mode" : "Dark Mode";
+    mode === "dark" ? "Use Light Mode" : "Use Dark Mode";
 }
 
 function updateFullscreenButton(): void {
@@ -533,13 +539,23 @@ function copyText(text: string): Promise<void> {
   });
 }
 
-async function parseInput(openFullscreen = false): Promise<void> {
+async function parseInput(
+  options: {
+    openFullscreen?: boolean;
+    showStatus?: boolean;
+  } = {},
+): Promise<void> {
+  const { openFullscreen = false, showStatus = true } = options;
   const sourceText = elements.inputText.value;
 
   if (sourceText.trim().length === 0) {
-    setStatus("Paste data or upload a TXT file first.");
+    if (showStatus) {
+      setStatus("Paste data or upload a TXT file first.");
+    }
     return;
   }
+
+  saveInputDraft(sourceText);
 
   if (openFullscreen) {
     await openTableFullscreen();
@@ -567,7 +583,10 @@ async function parseInput(openFullscreen = false): Promise<void> {
   renderNotesPanel();
 
   setLoading(false);
-  setStatus("Dataset parsed successfully.");
+
+  if (showStatus) {
+    setStatus("Dataset parsed successfully.");
+  }
 }
 
 elements.fileInput.addEventListener("change", async () => {
@@ -579,11 +598,12 @@ elements.fileInput.addEventListener("change", async () => {
 
   const fileText = await file.text();
   elements.inputText.value = fileText;
+  saveInputDraft(fileText);
   setStatus(`Loaded ${file.name}`);
 });
 
 elements.parseBtn.addEventListener("click", () => {
-  void parseInput(true);
+  void parseInput({ openFullscreen: true, showStatus: true });
 });
 
 elements.fullscreenToggleBtn.addEventListener("click", () => {
@@ -599,6 +619,9 @@ elements.clearBtn.addEventListener("click", () => {
   elements.searchInput.value = "";
   elements.fileInput.value = "";
 
+  clearInputDraft();
+  clearSearchDraft();
+
   state.parsedData = emptyParsedData;
   state.hasLoadedData = false;
   state.sortState = { columnIndex: null, direction: null };
@@ -613,13 +636,23 @@ elements.clearBtn.addEventListener("click", () => {
   setStatus("Workspace cleared.");
 });
 
+const debouncedDraftSave = debounce<[string]>((value) => {
+  saveInputDraft(value);
+}, 180);
+
+elements.inputText.addEventListener("input", () => {
+  debouncedDraftSave(elements.inputText.value);
+});
+
 const debouncedSearch = debounce<[string]>((query) => {
   state.searchQuery = query;
   deriveAndRender();
 }, 220);
 
 elements.searchInput.addEventListener("input", () => {
-  debouncedSearch(elements.searchInput.value);
+  const query = elements.searchInput.value;
+  saveSearchDraft(query);
+  debouncedSearch(query);
 });
 
 elements.exportCsvBtn.addEventListener("click", () => {
@@ -689,5 +722,22 @@ elements.noteInput.addEventListener("keydown", (event) => {
 const initialTheme = loadThemeMode();
 applyTheme(initialTheme);
 updateFullscreenButton();
+
+const restoredInputDraft = loadInputDraft();
+if (restoredInputDraft.length > 0) {
+  elements.inputText.value = restoredInputDraft;
+}
+
+const restoredSearchDraft = loadSearchDraft();
+if (restoredSearchDraft.length > 0) {
+  elements.searchInput.value = restoredSearchDraft;
+  state.searchQuery = restoredSearchDraft;
+}
+
 renderNotesPanel();
-deriveAndRender();
+
+if (restoredInputDraft.trim().length > 0) {
+  void parseInput({ showStatus: false });
+} else {
+  deriveAndRender();
+}

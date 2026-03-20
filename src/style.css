@@ -11,6 +11,12 @@
   --text-strong: #12203a;
   --text-muted: #4d5b78;
 
+  --control-bg: rgba(255, 255, 255, 0.9);
+  --control-border: rgba(90, 112, 171, 0.3);
+  --control-hover-bg: rgba(255, 255, 255, 1);
+  --pill-bg: rgba(229, 237, 255, 0.92);
+  --panel-item-bg: rgba(255, 255, 255, 0.76);
+
   --accent: #336dff;
   --accent-2: #7246ff;
   --accent-soft: rgba(51, 109, 255, 0.14);
@@ -37,6 +43,12 @@
   --card-border: rgba(62, 88, 146, 0.5);
   --text-strong: #e8eeff;
   --text-muted: #a9b7da;
+
+  --control-bg: rgba(28, 40, 70, 0.95);
+  --control-border: rgba(116, 145, 214, 0.44);
+  --control-hover-bg: rgba(39, 55, 94, 0.98);
+  --pill-bg: rgba(35, 48, 82, 0.95);
+  --panel-item-bg: rgba(30, 44, 76, 0.9);
 
   --accent: #78a2ff;
   --accent-2: #9b80ff;
@@ -132,7 +144,7 @@ body {
 
 .topbar {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
   padding: 1.15rem 1.3rem;
@@ -142,6 +154,7 @@ body {
   margin: 0;
   font-size: clamp(1.55rem, 2.4vw, 2rem);
   letter-spacing: -0.02em;
+  text-shadow: 0 2px 22px rgba(50, 104, 255, 0.2);
 }
 
 .topbar p {
@@ -157,9 +170,9 @@ body {
 }
 
 .btn {
-  border: 1px solid transparent;
+  border: 1px solid var(--control-border);
   color: var(--text-strong);
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--control-bg);
   border-radius: 12px;
   padding: 0.56rem 0.95rem;
   font-family: var(--font-sans);
@@ -173,8 +186,9 @@ body {
 }
 
 .btn:hover {
+  background: var(--control-hover-bg);
   transform: translateY(-1px);
-  border-color: rgba(79, 123, 236, 0.4);
+  border-color: rgba(99, 140, 249, 0.74);
   box-shadow: var(--shadow-soft);
 }
 
@@ -185,11 +199,20 @@ body {
 .btn.primary {
   color: #fff;
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-color: transparent;
 }
 
 .btn.subtle {
-  background: transparent;
-  border-color: var(--table-border);
+  background: color-mix(in srgb, var(--control-bg) 78%, transparent);
+  border-color: var(--control-border);
+}
+
+.theme-btn {
+  background:
+    linear-gradient(var(--control-bg), var(--control-bg)) padding-box,
+    linear-gradient(135deg, var(--accent), var(--accent-2)) border-box;
+  border: 1px solid transparent;
+  font-weight: 700;
 }
 
 .controls-grid {
@@ -269,7 +292,7 @@ body {
   font-family: var(--font-mono);
   font-size: 0.79rem;
   color: var(--text-strong);
-  background: var(--bg-overlay);
+  background: var(--control-bg);
 }
 
 #inputText:focus,
@@ -291,7 +314,7 @@ body {
   padding: 0.34rem 0.7rem;
   font-size: 0.75rem;
   color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.62);
+  background: var(--pill-bg);
   border: 1px solid var(--table-border);
 }
 
@@ -309,7 +332,7 @@ body {
   border-radius: 10px;
   border: 1px solid var(--table-border);
   padding: 0.62rem 0.68rem;
-  background: var(--bg-overlay);
+  background: var(--control-bg);
   color: var(--text-strong);
   font-family: var(--font-sans);
 }
@@ -357,7 +380,7 @@ body {
   padding: 0.48rem 0.55rem;
   border-radius: 10px;
   border: 1px solid var(--table-border);
-  background: rgba(255, 255, 255, 0.45);
+  background: var(--panel-item-bg);
 }
 
 .row-details-list strong {
@@ -562,7 +585,7 @@ body {
   border: 1px solid var(--table-border);
   padding: 0.75rem;
   resize: vertical;
-  background: var(--bg-overlay);
+  background: var(--control-bg);
   color: var(--text-strong);
   font-family: var(--font-mono);
   font-size: 0.78rem;
@@ -580,7 +603,7 @@ body {
 
 .btn:disabled,
 .note-input:disabled {
-  opacity: 0.45;
+  opacity: 0.65;
   cursor: not-allowed;
 }
 
