@@ -27,6 +27,7 @@ import { parsePipeSeparatedText } from "./utils/parser";
 import { buildCsvContent } from "./utils/csv";
 import { VirtualTable } from "./ui/virtualTable";
 import { ApiFormatter } from "./ui/apiFormatter";
+import { CurlCreator } from "./ui/curlCreator";
 
 const appElement = document.querySelector<HTMLDivElement>("#app");
 
@@ -60,6 +61,10 @@ appElement.innerHTML = `
       <button id="tabApiFormatterBtn" class="tab-btn" type="button">
         <svg class="tab-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
         Teams API Formatter
+      </button>
+      <button id="tabCurlCreatorBtn" class="tab-btn" type="button">
+        <svg class="tab-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        cURL Creations
       </button>
     </nav>
 
@@ -116,6 +121,9 @@ appElement.innerHTML = `
     <div id="apiFormatterView" class="tab-content">
       <!-- Rendered dynamically by ApiFormatter component -->
     </div>
+    <div id="curlCreatorView" class="tab-content">
+      <!-- Rendered dynamically by CurlCreator component -->
+    </div>
   </div>
 
   <div id="loadingOverlay" class="loading-overlay hidden" aria-live="assertive">
@@ -155,8 +163,10 @@ const elements = {
   tableCard: document.querySelector<HTMLDivElement>(".table-card")!,
   tabTableBuilderBtn: document.querySelector<HTMLButtonElement>("#tabTableBuilderBtn")!,
   tabApiFormatterBtn: document.querySelector<HTMLButtonElement>("#tabApiFormatterBtn")!,
+  tabCurlCreatorBtn: document.querySelector<HTMLButtonElement>("#tabCurlCreatorBtn")!,
   tableBuilderView: document.querySelector<HTMLDivElement>("#tableBuilderView")!,
   apiFormatterView: document.querySelector<HTMLDivElement>("#apiFormatterView")!,
+  curlCreatorView: document.querySelector<HTMLDivElement>("#curlCreatorView")!,
 };
 
 const emptyParsedData: ParsedTableData = { headers: [], rows: [] };
@@ -764,20 +774,52 @@ if (restoredInputDraft.trim().length > 0) {
   deriveAndRender();
 }
 
-// Initialize Teams API Formatter
+// Initialize Teams API Formatter & cURL Creator
 new ApiFormatter(elements.apiFormatterView);
+new CurlCreator(elements.curlCreatorView);
 
 // Tab switching logic
+function switchTab(
+  activeBtn: HTMLButtonElement,
+  activeView: HTMLDivElement,
+  otherBtns: HTMLButtonElement[],
+  otherViews: HTMLDivElement[]
+) {
+  activeBtn.classList.add("active");
+  activeView.classList.add("active");
+  otherBtns.forEach((btn) => btn.classList.remove("active"));
+  otherViews.forEach((view) => view.classList.remove("active"));
+
+  // Only show the table-specific actions (Fullscreen, Export CSV, Copy Selected Row) when on the table workspace page
+  const isTableTab = activeBtn === elements.tabTableBuilderBtn;
+  elements.fullscreenToggleBtn.classList.toggle("hidden", !isTableTab);
+  elements.exportCsvBtn.classList.toggle("hidden", !isTableTab);
+  elements.copyRowBtn.classList.toggle("hidden", !isTableTab);
+}
+
 elements.tabTableBuilderBtn.addEventListener("click", () => {
-  elements.tabTableBuilderBtn.classList.add("active");
-  elements.tabApiFormatterBtn.classList.remove("active");
-  elements.tableBuilderView.classList.add("active");
-  elements.apiFormatterView.classList.remove("active");
+  switchTab(
+    elements.tabTableBuilderBtn,
+    elements.tableBuilderView,
+    [elements.tabApiFormatterBtn, elements.tabCurlCreatorBtn],
+    [elements.apiFormatterView, elements.curlCreatorView]
+  );
 });
 
 elements.tabApiFormatterBtn.addEventListener("click", () => {
-  elements.tabApiFormatterBtn.classList.add("active");
-  elements.tabTableBuilderBtn.classList.remove("active");
-  elements.apiFormatterView.classList.add("active");
-  elements.tableBuilderView.classList.remove("active");
+  switchTab(
+    elements.tabApiFormatterBtn,
+    elements.apiFormatterView,
+    [elements.tabTableBuilderBtn, elements.tabCurlCreatorBtn],
+    [elements.tableBuilderView, elements.curlCreatorView]
+  );
+});
+
+elements.tabCurlCreatorBtn.addEventListener("click", () => {
+  switchTab(
+    elements.tabCurlCreatorBtn,
+    elements.curlCreatorView,
+    [elements.tabTableBuilderBtn, elements.tabApiFormatterBtn],
+    [elements.tableBuilderView, elements.apiFormatterView]
+  );
 });
