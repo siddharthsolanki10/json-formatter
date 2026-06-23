@@ -217,13 +217,13 @@ body {
 
 .controls-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.9fr) minmax(320px, 1fr);
+  grid-template-columns: minmax(0, 2.2fr) minmax(320px, 0.8fr);
   gap: 1rem;
 }
 
 .workspace-grid {
   display: grid;
-  grid-template-columns: minmax(0, 2.4fr) minmax(300px, 0.9fr);
+  grid-template-columns: minmax(0, 2.2fr) minmax(320px, 0.8fr);
   gap: 1rem;
 }
 
@@ -728,3 +728,253 @@ body {
     height: 60vh;
   }
 }
+
+/* ==========================================
+   Teams API Formatter View Styles
+   ========================================== */
+
+/* Navigation Tabs Styling */
+.navigation-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  padding: 0.6rem 1.25rem;
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  background: var(--control-bg);
+  color: var(--text-strong);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--accent-soft), rgba(114, 70, 255, 0.08));
+  border-color: rgba(51, 109, 255, 0.25);
+  color: var(--accent);
+}
+
+.tab-icon {
+  flex-shrink: 0;
+}
+
+/* Tab Views Toggling & Animation */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  animation: enter-tab 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes enter-tab {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* API Formatter Layout Grid */
+.api-formatter-container {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 1.2rem;
+  align-items: start;
+}
+
+.api-form-card,
+.api-preview-card {
+  padding: 1.5rem;
+}
+
+.api-form-header,
+.preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+  border-bottom: 1px solid var(--table-border);
+  padding-bottom: 0.8rem;
+}
+
+.api-form-header h2,
+.preview-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.form-actions-top {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-sm {
+  padding: 0.38rem 0.75rem;
+  font-size: 0.76rem;
+  border-radius: 8px;
+}
+
+.form-group {
+  margin-bottom: 1.1rem;
+}
+
+.form-group.row-inline {
+  display: flex;
+  gap: 1rem;
+}
+
+.field-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.flex-3 {
+  flex: 3;
+}
+
+.form-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.textarea-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.text-btn {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0 0.2rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.text-btn:hover {
+  opacity: 0.85;
+  text-decoration: underline;
+  box-shadow: none;
+  transform: none;
+}
+
+.form-input-field,
+.form-select-field,
+.form-textarea-field {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--table-border);
+  padding: 0.65rem 0.8rem;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  color: var(--text-strong);
+  background: var(--control-bg);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-textarea-field {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-input-field:focus,
+.form-select-field:focus,
+.form-textarea-field:focus {
+  outline: 2px solid rgba(86, 129, 244, 0.35);
+  border-color: rgba(86, 129, 244, 0.4);
+}
+
+.form-select-field {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='none' height='24' stroke='%234d5b78' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 1rem;
+  padding-right: 2.2rem;
+}
+
+/* Status message */
+.formatter-status {
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.formatter-status.success {
+  color: #23b287;
+}
+
+.formatter-status.error {
+  color: #ff4d4d;
+}
+
+/* Preview pane styling */
+.preview-scroll {
+  border-radius: 12px;
+  border: 1px solid var(--table-border);
+  background: var(--control-bg);
+  height: clamp(20rem, 50vh, 40rem);
+  overflow: auto;
+  margin-bottom: 1.2rem;
+  padding: 1rem;
+}
+
+.preview-content {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-strong);
+}
+
+.copy-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.copy-actions .btn {
+  flex: 1;
+}
+
+/* Responsive Overrides for API Formatter */
+@media (max-width: 1100px) {
+  .api-formatter-container {
+    grid-template-columns: 1fr;
+  }
+}
+

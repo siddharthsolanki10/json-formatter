@@ -26,6 +26,7 @@ import { buildDuplicateMetadata } from "./utils/duplicates";
 import { parsePipeSeparatedText } from "./utils/parser";
 import { buildCsvContent } from "./utils/csv";
 import { VirtualTable } from "./ui/virtualTable";
+import { ApiFormatter } from "./ui/apiFormatter";
 
 const appElement = document.querySelector<HTMLDivElement>("#app");
 
@@ -51,53 +52,70 @@ appElement.innerHTML = `
       </div>
     </header>
 
-    <section class="controls-grid">
-      <div class="card input-card">
-        <div class="input-actions">
-          <label class="file-picker btn subtle" for="fileInput">
-            Upload TXT
-            <input id="fileInput" type="file" accept=".txt,text/plain" />
-          </label>
-          <button id="parseBtn" class="btn primary" type="button">Create</button>
-          <button id="clearBtn" class="btn subtle" type="button">Clear</button>
+    <nav class="navigation-tabs card">
+      <button id="tabTableBuilderBtn" class="tab-btn active" type="button">
+        <svg class="tab-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg>
+        Table Workspace
+      </button>
+      <button id="tabApiFormatterBtn" class="tab-btn" type="button">
+        <svg class="tab-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        Teams API Formatter
+      </button>
+    </nav>
+
+    <div id="tableBuilderView" class="tab-content active">
+      <section class="controls-grid">
+        <div class="card input-card">
+          <div class="input-actions">
+            <label class="file-picker btn subtle" for="fileInput">
+              Upload TXT
+              <input id="fileInput" type="file" accept=".txt,text/plain" />
+            </label>
+            <button id="parseBtn" class="btn primary" type="button">Create</button>
+            <button id="clearBtn" class="btn subtle" type="button">Clear</button>
+          </div>
+
+          <textarea id="inputText" placeholder="Paste pipe-separated data here..."></textarea>
+
+          <div class="meta-row">
+            <div id="parseSummary" class="meta-pill">No dataset loaded.</div>
+            <div id="rowsSummary" class="meta-pill">Rows: 0</div>
+            <div id="duplicatesSummary" class="meta-pill">Duplicates: 0</div>
+          </div>
+
+          <div class="search-wrap">
+            <input id="searchInput" type="search" placeholder="Search rows (debounced)..." />
+            <span id="actionStatus" class="action-status" aria-live="polite"></span>
+          </div>
         </div>
 
-        <textarea id="inputText" placeholder="Paste pipe-separated data here..."></textarea>
+        <aside class="card row-details-card">
+          <h2>Selected Row Details</h2>
+          <div id="rowDetails" class="row-details-empty">Select any row or cell to inspect values.</div>
+        </aside>
+      </section>
 
-        <div class="meta-row">
-          <div id="parseSummary" class="meta-pill">No dataset loaded.</div>
-          <div id="rowsSummary" class="meta-pill">Rows: 0</div>
-          <div id="duplicatesSummary" class="meta-pill">Duplicates: 0</div>
+      <section class="workspace-grid">
+        <div class="card table-card">
+          <div id="tableRoot" class="table-root"></div>
         </div>
 
-        <div class="search-wrap">
-          <input id="searchInput" type="search" placeholder="Search rows (debounced)..." />
-          <span id="actionStatus" class="action-status" aria-live="polite"></span>
-        </div>
-      </div>
+        <aside class="card notes-card">
+          <h2>Notes</h2>
+          <p id="noteTargetLabel" class="note-target-label">Select a row or cell to attach notes.</p>
+          <textarea id="noteInput" class="note-input" placeholder="Write a note for the selected row/cell..." disabled></textarea>
+          <div class="note-actions">
+            <button id="saveNoteBtn" class="btn primary" type="button" disabled>Save Note</button>
+            <button id="deleteNoteBtn" class="btn subtle" type="button" disabled>Delete Note</button>
+          </div>
+          <p id="noteMeta" class="note-meta">No target selected.</p>
+        </aside>
+      </section>
+    </div>
 
-      <aside class="card row-details-card">
-        <h2>Selected Row Details</h2>
-        <div id="rowDetails" class="row-details-empty">Select any row or cell to inspect values.</div>
-      </aside>
-    </section>
-
-    <section class="workspace-grid">
-      <div class="card table-card">
-        <div id="tableRoot" class="table-root"></div>
-      </div>
-
-      <aside class="card notes-card">
-        <h2>Notes</h2>
-        <p id="noteTargetLabel" class="note-target-label">Select a row or cell to attach notes.</p>
-        <textarea id="noteInput" class="note-input" placeholder="Write a note for the selected row/cell..." disabled></textarea>
-        <div class="note-actions">
-          <button id="saveNoteBtn" class="btn primary" type="button" disabled>Save Note</button>
-          <button id="deleteNoteBtn" class="btn subtle" type="button" disabled>Delete Note</button>
-        </div>
-        <p id="noteMeta" class="note-meta">No target selected.</p>
-      </aside>
-    </section>
+    <div id="apiFormatterView" class="tab-content">
+      <!-- Rendered dynamically by ApiFormatter component -->
+    </div>
   </div>
 
   <div id="loadingOverlay" class="loading-overlay hidden" aria-live="assertive">
@@ -135,6 +153,10 @@ const elements = {
   loadingOverlay: document.querySelector<HTMLDivElement>("#loadingOverlay")!,
   tableRoot: document.querySelector<HTMLDivElement>("#tableRoot")!,
   tableCard: document.querySelector<HTMLDivElement>(".table-card")!,
+  tabTableBuilderBtn: document.querySelector<HTMLButtonElement>("#tabTableBuilderBtn")!,
+  tabApiFormatterBtn: document.querySelector<HTMLButtonElement>("#tabApiFormatterBtn")!,
+  tableBuilderView: document.querySelector<HTMLDivElement>("#tableBuilderView")!,
+  apiFormatterView: document.querySelector<HTMLDivElement>("#apiFormatterView")!,
 };
 
 const emptyParsedData: ParsedTableData = { headers: [], rows: [] };
@@ -741,3 +763,21 @@ if (restoredInputDraft.trim().length > 0) {
 } else {
   deriveAndRender();
 }
+
+// Initialize Teams API Formatter
+new ApiFormatter(elements.apiFormatterView);
+
+// Tab switching logic
+elements.tabTableBuilderBtn.addEventListener("click", () => {
+  elements.tabTableBuilderBtn.classList.add("active");
+  elements.tabApiFormatterBtn.classList.remove("active");
+  elements.tableBuilderView.classList.add("active");
+  elements.apiFormatterView.classList.remove("active");
+});
+
+elements.tabApiFormatterBtn.addEventListener("click", () => {
+  elements.tabApiFormatterBtn.classList.add("active");
+  elements.tabTableBuilderBtn.classList.remove("active");
+  elements.apiFormatterView.classList.add("active");
+  elements.tableBuilderView.classList.remove("active");
+});
