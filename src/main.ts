@@ -1,4 +1,5 @@
 import "./style.css";
+import Lenis from "lenis";
 import {
   buildCellNoteKey,
   buildRowNoteKey,
@@ -40,36 +41,38 @@ appElement.innerHTML = `
     <div class="bg-orb orb-left"></div>
     <div class="bg-orb orb-right"></div>
 
-    <header class="topbar card">
-      <div>
-        <h1>TableCraft</h1>
-        <p>Build, inspect, and annotate pipe-delimited tables with a fast interactive workspace.</p>
-      </div>
-      <div class="topbar-actions">
-        <button id="themeToggleBtn" class="btn subtle theme-btn" type="button">Dark Mode</button>
-        <button id="fullscreenToggleBtn" class="btn subtle" type="button">Fullscreen</button>
-        <button id="exportCsvBtn" class="btn" type="button">Export CSV</button>
-        <button id="copyRowBtn" class="btn" type="button">Copy Selected Row</button>
-      </div>
-    </header>
+    <div class="sticky-header-container">
+      <header class="topbar card">
+        <div>
+          <h1>TableCraft</h1>
+          <p>Build, inspect, and annotate pipe-delimited tables with a fast interactive workspace.</p>
+        </div>
+        <div class="topbar-actions">
+          <button id="themeToggleBtn" class="btn subtle theme-btn" type="button">Dark Mode</button>
+          <button id="fullscreenToggleBtn" class="btn subtle" type="button">Fullscreen</button>
+          <button id="exportCsvBtn" class="btn" type="button">Export CSV</button>
+          <button id="copyRowBtn" class="btn" type="button">Copy Selected Row</button>
+        </div>
+      </header>
 
-    <nav class="navigation-tabs card">
-      <button id="tabTableBuilderBtn" class="tab-btn active" type="button">
-        <svg class="tab-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg>
-        Table Workspace
-      </button>
-      <button id="tabApiFormatterBtn" class="tab-btn" type="button">
-        <svg class="tab-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-        Teams API Formatter
-      </button>
-      <button id="tabCurlCreatorBtn" class="tab-btn" type="button">
-        <svg class="tab-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-        cURL Creations
-      </button>
-    </nav>
+      <nav class="navigation-tabs card">
+        <button id="tabTableBuilderBtn" class="tab-btn active" type="button">
+          <svg class="tab-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg>
+          Table Workspace
+        </button>
+        <button id="tabApiFormatterBtn" class="tab-btn" type="button">
+          <svg class="tab-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          Teams API Formatter
+        </button>
+        <button id="tabCurlCreatorBtn" class="tab-btn" type="button">
+          <svg class="tab-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          cURL Creations
+        </button>
+      </nav>
+    </div>
 
     <div id="tableBuilderView" class="tab-content active">
-      <section class="controls-grid">
+      <section class="controls-grid reveal-on-scroll">
         <div class="card input-card">
           <div class="input-actions">
             <label class="file-picker btn subtle" for="fileInput">
@@ -100,7 +103,7 @@ appElement.innerHTML = `
         </aside>
       </section>
 
-      <section class="workspace-grid">
+      <section class="workspace-grid reveal-on-scroll">
         <div class="card table-card">
           <div id="tableRoot" class="table-root"></div>
         </div>
@@ -778,23 +781,140 @@ if (restoredInputDraft.trim().length > 0) {
 new ApiFormatter(elements.apiFormatterView);
 new CurlCreator(elements.curlCreatorView);
 
-// Tab switching logic
+// =========================================================================
+// Modern UX & Animation Logic
+// =========================================================================
+
+// 1. Initialize Lenis Smooth Scrolling
+const lenis = new Lenis({
+  autoRaf: true,
+  prevent: (node) => {
+    return (
+      node.tagName === "TEXTAREA" ||
+      node.tagName === "INPUT" ||
+      node.classList.contains("table-scroll") ||
+      node.classList.contains("row-details-list") ||
+      node.classList.contains("api-preview-card") ||
+      node.classList.contains("curl-code-block")
+    );
+  }
+});
+
+// 2. Initial Splash Screen Loading Transition
+const splashEl = document.getElementById("appSplash");
+const splashBarEl = splashEl?.querySelector(".splash-bar") as HTMLDivElement | null;
+
+if (splashEl && splashBarEl) {
+  let progress = 0;
+  const interval = window.setInterval(() => {
+    progress += Math.floor(Math.random() * 18) + 8;
+    if (progress >= 100) {
+      progress = 100;
+      window.clearInterval(interval);
+      splashBarEl.style.width = "100%";
+      
+      window.setTimeout(() => {
+        splashEl.classList.add("fade-out");
+        // Trigger initial viewport scroll reveals
+        window.setTimeout(() => {
+          triggerScrollReveal();
+        }, 150);
+      }, 250);
+    } else {
+      splashBarEl.style.width = `${progress}%`;
+    }
+  }, 50);
+} else {
+  window.setTimeout(() => triggerScrollReveal(), 100);
+}
+
+// 3. Scroll Progress Indicator & Sticky Header Controller
+const progressBar = document.getElementById("scrollProgressBar");
+const stickyHeader = document.querySelector(".sticky-header-container");
+
+lenis.on("scroll", (e) => {
+  if (progressBar) {
+    progressBar.style.width = `${e.progress * 100}%`;
+  }
+
+  if (stickyHeader) {
+    stickyHeader.classList.toggle("scrolled", e.scroll > 15);
+  }
+});
+
+// 4. IntersectionObserver Scroll Reveal
+function triggerScrollReveal(): void {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("revealed");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.05 }
+  );
+
+  document.querySelectorAll(".reveal-on-scroll").forEach((el) => {
+    observer.observe(el);
+  });
+}
+
+// Expose scroll reveal trigger globally
+(window as any).triggerScrollReveal = triggerScrollReveal;
+
+// 5. Intercept local anchor link clicks for Lenis smooth scrolling
+document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+  anchor.addEventListener("click", (e) => {
+    const href = anchor.getAttribute("href");
+    if (href && href.startsWith("#") && href !== "#") {
+      e.preventDefault();
+      const target = document.querySelector<HTMLElement>(href);
+      if (target) {
+        lenis.scrollTo(target);
+      }
+    }
+  });
+});
+
+// 6. Tab switching logic with exit/entry page transitions
 function switchTab(
   activeBtn: HTMLButtonElement,
   activeView: HTMLDivElement,
   otherBtns: HTMLButtonElement[],
   otherViews: HTMLDivElement[]
 ) {
-  activeBtn.classList.add("active");
-  activeView.classList.add("active");
-  otherBtns.forEach((btn) => btn.classList.remove("active"));
-  otherViews.forEach((view) => view.classList.remove("active"));
+  const currentActiveView = otherViews.find((view) => view.classList.contains("active"));
 
-  // Only show the table-specific actions (Fullscreen, Export CSV, Copy Selected Row) when on the table workspace page
-  const isTableTab = activeBtn === elements.tabTableBuilderBtn;
-  elements.fullscreenToggleBtn.classList.toggle("hidden", !isTableTab);
-  elements.exportCsvBtn.classList.toggle("hidden", !isTableTab);
-  elements.copyRowBtn.classList.toggle("hidden", !isTableTab);
+  const applyTabSwitchState = () => {
+    activeBtn.classList.add("active");
+    activeView.classList.add("active");
+    otherBtns.forEach((btn) => btn.classList.remove("active"));
+    otherViews.forEach((view) => view.classList.remove("active"));
+
+    // Trigger scroll reveal on newly loaded layout items
+    triggerScrollReveal();
+
+    // Only show the table-specific actions when on the table workspace page
+    const isTableTab = activeBtn === elements.tabTableBuilderBtn;
+    elements.fullscreenToggleBtn.classList.toggle("hidden", !isTableTab);
+    elements.exportCsvBtn.classList.toggle("hidden", !isTableTab);
+    elements.copyRowBtn.classList.toggle("hidden", !isTableTab);
+
+    // Scroll back to top instantly for fresh layout
+    lenis.scrollTo(0, { immediate: true });
+  };
+
+  if (currentActiveView) {
+    currentActiveView.classList.add("leaving");
+    window.setTimeout(() => {
+      currentActiveView.classList.remove("leaving");
+      applyTabSwitchState();
+    }, 200);
+  } else {
+    applyTabSwitchState();
+  }
 }
 
 elements.tabTableBuilderBtn.addEventListener("click", () => {

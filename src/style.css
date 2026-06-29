@@ -1113,4 +1113,318 @@ body {
   }
 }
 
+/* ==========================================
+   Modern UX & Animation Enhancements Styles
+   ========================================== */
+
+/* Lenis smooth scroll base style */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overflow: clip;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* Scroll Progress Bar */
+.scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  z-index: 99999;
+  transition: width 0.1s ease-out;
+  box-shadow: 0 0 10px rgba(51, 109, 255, 0.4);
+}
+
+/* App Splash Screen */
+.app-splash {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  background: radial-gradient(circle at 50% 50%, var(--panel-item-bg), var(--bg));
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-splash.fade-out {
+  opacity: 0;
+  transform: scale(1.08);
+  pointer-events: none;
+}
+
+.splash-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.splash-logo {
+  font-size: clamp(2.5rem, 5vw, 3.8rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  margin: 0;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: logo-glow 2s ease-in-out infinite alternate;
+}
+
+.splash-subtitle {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.splash-progress {
+  width: 200px;
+  height: 4px;
+  background: var(--table-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.splash-bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 4px;
+  transition: width 0.4s ease-out;
+}
+
+@keyframes logo-glow {
+  from {
+    filter: drop-shadow(0 0 4px rgba(51, 109, 255, 0.15));
+  }
+  to {
+    filter: drop-shadow(0 0 15px rgba(114, 70, 255, 0.45));
+  }
+}
+
+/* Sticky Header Container */
+.sticky-header-container {
+  position: sticky;
+  top: 0;
+  z-index: 9998;
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 1.2rem;
+  padding-bottom: 0.5rem;
+  background: linear-gradient(to bottom, var(--bg) 80%, transparent);
+  transition: padding 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sticky-header-container.scrolled {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--card-border);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.12);
+}
+
+/* Shrink header elements on scroll */
+.sticky-header-container.scrolled .topbar {
+  padding: 0.6rem 1.3rem;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.sticky-header-container.scrolled .topbar p {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  margin-top: 0;
+  transition: max-height 0.3s ease, opacity 0.2s ease, margin-top 0.3s ease;
+}
+
+.sticky-header-container .topbar p {
+  max-height: 100px;
+  opacity: 1;
+  transition: max-height 0.3s ease, opacity 0.2s ease, margin-top 0.3s ease;
+}
+
+.sticky-header-container.scrolled .navigation-tabs {
+  margin-bottom: 0;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  padding: 0.2rem 0.5rem;
+}
+
+/* Tab Transitions leaving animation */
+.tab-content.leaving {
+  animation: leave-tab 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  display: block !important;
+}
+
+@keyframes leave-tab {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+/* Scroll Reveal Animations */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(24px) scale(0.985);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.reveal-on-scroll.revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Premium Micro-interactions */
+/* Smooth active/hover transitions for buttons */
+.btn {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              border-color 0.2s ease,
+              box-shadow 0.2s ease,
+              background-color 0.2s ease,
+              color 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(51, 109, 255, 0.15);
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.96);
+}
+
+/* Premium smooth hover scale for Cards */
+.card {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 35px rgba(25, 44, 98, 0.08);
+  border-color: rgba(99, 140, 249, 0.3);
+}
+
+/* Specific cards inside inner grids: make them reveal-ready and interactive */
+.controls-grid > *,
+.workspace-grid > *,
+.api-formatter-container > * {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.controls-grid > *:hover,
+.workspace-grid > *:hover,
+.api-formatter-container > *:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 35px rgba(25, 44, 98, 0.08);
+  border-color: rgba(99, 140, 249, 0.3);
+}
+
+/* Exempt table card from hover translations to avoid layout thrashing and repaint lag */
+.workspace-grid > .table-card:hover {
+  transform: none !important;
+  box-shadow: var(--shadow-card) !important;
+  border-color: var(--card-border) !important;
+}
+
+/* Inputs & Textareas Hover/Focus scaling */
+#inputText,
+#searchInput,
+.note-input,
+.form-input-field,
+.form-textarea-field,
+.form-select-field {
+  transition: border-color 0.2s ease,
+              box-shadow 0.2s ease,
+              transform 0.2s ease;
+}
+
+#inputText:hover,
+#searchInput:hover,
+.note-input:hover,
+.form-input-field:hover,
+.form-textarea-field:hover,
+.form-select-field:hover {
+  border-color: rgba(90, 112, 171, 0.5);
+}
+
+#inputText:focus,
+#searchInput:focus,
+.note-input:focus,
+.form-input-field:focus,
+.form-textarea-field:focus,
+.form-select-field:focus {
+  transform: scale(1.002);
+  outline: 2px solid rgba(86, 129, 244, 0.35);
+  border-color: rgba(86, 129, 244, 0.5);
+}
+
+/* Navigation Tabs sliding underline/indicator effect */
+.tab-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 0.3s ease, left 0.3s ease;
+}
+
+.tab-btn:hover::after {
+  width: 60%;
+  left: 20%;
+}
+
+.tab-btn.active::after {
+  width: 80%;
+  left: 10%;
+}
+
+
 
