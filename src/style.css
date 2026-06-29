@@ -73,6 +73,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 html,
 body,
 #app {
@@ -413,7 +417,6 @@ body {
 .table-scroll {
   height: clamp(25rem, 62vh, 50rem);
   overflow: auto;
-  scroll-behavior: smooth;
 }
 
 .table-scroll.hidden {

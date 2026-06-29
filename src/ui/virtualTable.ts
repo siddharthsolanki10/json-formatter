@@ -103,6 +103,8 @@ export class VirtualTable {
     this.renderBody(true);
   }
 
+  private isScrollPending = false;
+
   private attachListeners(): void {
     this.scrollEl.addEventListener("scroll", this.handleScroll);
     this.headEl.addEventListener("click", this.handleHeaderClick);
@@ -111,7 +113,13 @@ export class VirtualTable {
   }
 
   private handleScroll = (): void => {
-    this.renderBody(false);
+    if (!this.isScrollPending) {
+      this.isScrollPending = true;
+      requestAnimationFrame(() => {
+        this.renderBody(false);
+        this.isScrollPending = false;
+      });
+    }
   };
 
   private handleHeaderClick = (event: MouseEvent): void => {
